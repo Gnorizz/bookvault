@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ AGENCY_SHORT }} · Secure Portal{% endblock %}</title>
+  <link rel="icon" href="{% static 'hq/images/favicon.ico' %}">
+  <link rel="stylesheet" href="{% static 'hq/css/hq.css' %}">
+</head>
+<body>
+  <div class="topbar">RESTRICTED · FOR OFFICIAL USE ONLY</div>
+  <header class="header">
+    <div class="brand">
+      <img src="{% static 'hq/images/logo.png' %}" alt="{{ AGENCY_SHORT }} emblem">
+      <div>
+        <div class="brand-name">{{ AGENCY_NAME }}</div>
+        <div class="brand-sub">Internal Operations Portal</div>
+      </div>
+    </div>
+    <div class="header-right">{% block headerright %}{% endblock %}</div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer class="footer">
+    Unauthorised access is an offence and will be prosecuted. All activity on this system is logged and monitored.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{% extends "hq/base.html" %}
+{% load static %}
+{% block title %}Dashboard · {{ AGENCY_SHORT }}{% endblock %}
+{% block headerright %}
+  <span class="who">{{ agent.codename }} · {{ agent.service_number }}</span>
+  <a class="btn btn-small" href="{% url 'hq:logout' %}">Sign out</a>
+{% endblock %}
+
+{% block content %}
+<div class="dash">
+
+  <!-- Profile -->
+  <aside class="card profile">
+    <img class="photo" src="{% static 'hq/images/'|add:agent.photo %}" alt="Agent photo">
+    <h3>{{ agent.full_name }}</h3>
+    <div class="codename">Codename: {{ agent.codename }}</div>
+    <span class="badge level">LEVEL {{ agent.clearance_level }} CLEARANCE</span>
+    <dl>
+      <dt>Service No.</dt><dd>{{ agent.service_number }}</dd>
+      <dt>Unit</dt><dd>{{ agent.unit|default:"—" }}</dd>
+      <dt>Posting</dt><dd>{{ agent.posting|default:"—" }}</dd>
+      <dt>Status</dt><dd><span class="badge ok">ACTIVE DUTY</span></dd>
+      {% if last_login %}
+      <dt>Last sign-in</dt><dd>{{ last_login.timestamp|date:"d/m/Y H:i" }}</dd>
+      {% endif %}
+    </dl>
+  </aside>
+
+  <div class="stack">
+
+    <!-- Cases -->
+    <section class="card">
+      <h3>Assigned Cases</h3>
+      <table>
+        <thead><tr><th>Case No.</th><th>Title</th><th>Priority</th><th>Status</th><th>Opened</th></tr></thead>
+        <tbody>
+        {% for case in cases %}
+          {% if case.required_level > agent.clearance_level %}
+          <tr>
+            <td>{{ case.case_number }}</td>
+            <td><span class="redacted">RESTRICTED — INSUFFICIENT CLEARANCE</span></td>
+            <td>—</td><td>—</td><td>{{ case.opened|date:"d/m/Y" }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td>{{ case.case_number }}</td>
+            <td>{{ case.title }}</td>
+            <td><span class="badge p-{{ case.priority|lower }}">{{ case.get_priority_display }}</span></td>
+            <td><span class="badge s-{{ case.status|lower }}">{{ case.get_status_display }}</span></td>
+            <td>{{ case.opened|date:"d/m/Y" }}</td>
+          </tr>
+          {% endif %}
+        {% empty %}
+          <tr><td colspan="5" class="muted">No cases assigned.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <div class="two-col">
+      <!-- Memos -->
+      <section class="card">
+        <h3>Memos &amp; Directives</h3>
+        {% for memo in memos %}
+          <div class="memo {% if not memo.is_read %}unread{% endif %}">
+            <div class="memo-subject">{{ memo.subject }}</div>
+            <div class="muted small">{{ memo.sender }} · {{ memo.sent_at|date:"d/m/Y H:i" }}</div>
+            {% if memo.body %}<p class="small">{{ memo.body|truncatechars:140 }}</p>{% endif %}
+          </div>
+        {% empty %}
+          <p class="muted">No memos.</p>
+        {% endfor %}
+      </section>
+
+      <div class="stack">
+        <!-- Clearance -->
+        <section class="card">
+          <h3>Clearance Access</h3>
+          <div class="levels">
+            {% for lvl in levels %}
+              <div class="lvl {% if lvl <= agent.clearance_level %}open{% else %}locked{% endif %}">
+                L{{ lvl }}<br><small>{% if lvl <= agent.clearance_level %}Granted{% else %}Denied{% endif %}</small>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <!-- Access log -->
+        <section class="card">
+          <h3>Access Log</h3>
+          <table class="small-table">
+            <thead><tr><th>Date / Time</th><th>IP</th><th>Result</th></tr></thead>
+            <tbody>
+            {% for log in logs %}
+              <tr>
+                <td>{{ log.timestamp|date:"d/m/Y H:i" }}</td>
+                <td>{{ log.ip_address|default:"—" }}</td>
+                <td>{% if log.success %}<span class="badge ok">Success</span>{% else %}<span class="badge p-urgent">Failed</span>{% endif %}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

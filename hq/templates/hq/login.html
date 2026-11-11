@@ -1,0 +1,20 @@
+{% extends "hq/base.html" %}
+{% block title %}Secure Sign-in · {{ AGENCY_SHORT }}{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="card login-card">
+    <h2>Personnel Sign-in</h2>
+    <p class="muted">Enter your service number and password to continue.</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label>Service Number</label>
+      <input name="service_number" autocomplete="off" required>
+      <label>Password</label>
+      <input name="password" type="password" autocomplete="off" required>
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+    <p class="muted small">Forgot your password? Contact your unit administrator.</p>
+  </div>
+</div>
+{% endblock %}
