@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib import admin
-from .models import Agent, Case, Memo, AccessLog
+from .models import Agent, Case, Memo, AccessLog, Message, BannedTerm, MessageViolation
 
 class AgentAdminForm(forms.ModelForm):
     new_password = forms.CharField(
@@ -39,3 +39,15 @@ class MemoAdmin(admin.ModelAdmin):
 @admin.register(AccessLog)
 class AccessLogAdmin(admin.ModelAdmin):
     list_display = ("agent", "timestamp", "ip_address", "success")
+
+@admin.register(BannedTerm)
+class BannedTermAdmin(admin.ModelAdmin):
+    list_display = ("term", "whole_word")
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ("sender", "recipient", "priority", "sent_at", "read_at")
+
+@admin.register(MessageViolation)
+class MessageViolationAdmin(admin.ModelAdmin):
+    list_display = ("agent", "recipient", "reason", "attempted_at")

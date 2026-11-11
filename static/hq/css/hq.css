@@ -122,3 +122,23 @@ td { padding: 10px 6px; border-bottom: 1px solid #edf0ee; vertical-align: top; }
 @media (max-width: 860px) {
   .dash, .two-col { grid-template-columns: 1fr; }
 }
+
+.navlink { text-decoration:none; color:var(--green-dark); font-size:14px; font-weight:600; }
+.navlink:hover { text-decoration:underline; }
+.back { text-decoration:none; color:var(--green); }
+
+.contact { display:flex; justify-content:space-between; align-items:center; padding:12px 6px; border-bottom:1px solid #edf0ee; text-decoration:none; color:inherit; }
+.contact:hover { background:#f6f9f7; }
+.contact-meta { text-align:right; display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+
+.chat { display:flex; flex-direction:column; gap:10px; max-height:420px; overflow-y:auto; padding:6px 2px 14px; }
+.msg { max-width:78%; padding:10px 14px; border-radius:6px; border:1px solid var(--border); background:#fff; }
+.msg.mine { align-self:flex-end; background:#e8f4ed; border-color:#b6dfc6; }
+.msg.theirs { align-self:flex-start; }
+.msg-head { font-size:11px; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
+.msg-body { font-size:14.5px; word-wrap:break-word; }
+.msg-foot { font-size:11px; color:var(--muted); text-align:right; margin-top:4px; }
+
+.compose textarea { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:4px; font-size:15px; font-family:inherit; resize:vertical; }
+.compose-row { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:10px; }
+.compose select { padding:8px; border:1px solid var(--border); border-radius:4px; }

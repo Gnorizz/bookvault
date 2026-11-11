@@ -61,3 +61,30 @@ class AccessLog(models.Model):
 
     class Meta:
         ordering = ["-timestamp"]
+
+class Message(models.Model):
+    PRIORITY = [("ROUTINE", "Routine"), ("PRIORITY", "Priority")]
+    sender = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="sent_messages")
+    recipient = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="received_messages")
+    body = models.TextField(max_length=1000)
+    priority = models.CharField(max_length=10, choices=PRIORITY, default="ROUTINE")
+    sent_at = models.DateTimeField(default=timezone.now)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+
+class BannedTerm(models.Model):
+    term = models.CharField(max_length=100, unique=True)
+    whole_word = models.BooleanField(
+        default=False, help_text="Match only as a standalone word (use this for short words).")
+
+    def __str__(self):
+        return self.term
+
+
+class MessageViolation(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="violations")
+    recipient = models.ForeignKey(Agent, null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name="+")
+    text = models.TextField()
+    reason = models.CharField(max_length=20)
+    attempted_at = models.DateTimeField(auto_now_add=True)        

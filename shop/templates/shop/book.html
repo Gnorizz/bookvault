@@ -1,0 +1,17 @@
+{% extends "shop/base.html" %}
+{% block title %}{{ book.title }} · Pagebound Books{% endblock %}
+{% block content %}
+<div class="detail">
+  <div class="detail-cover">{% include "shop/_cover.html" %}</div>
+  <div>
+    <h1>{{ book.title }}</h1>
+    <p class="b-author">by {{ book.author }}</p>
+    <p class="b-price big">₦{{ book.price|floatformat:"2g" }}</p>
+    <p>{{ book.description|linebreaksbr }}</p>
+    <form method="post" action="{% url 'shop:cart_add' book.pk %}">
+      {% csrf_token %}
+      <button class="btn" type="submit">Add to cart</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

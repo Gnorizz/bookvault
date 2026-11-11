@@ -2,6 +2,12 @@ from functools import wraps
 from django.contrib.auth import logout
 from django.http import Http404
 from django.shortcuts import render, redirect
+from datetime import timedelta
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from .models import Message, MessageViolation
+from .filters import check_message, is_locked
 from .models import Agent, AccessLog
 
 def client_ip(request):
@@ -61,3 +67,57 @@ def dashboard(request):
 def logout_view(request):
     request.session.flush()
     return redirect("shop:home")
+
+RETENTION_HOURS = 72
+MAX_LEN = 1000
+
+def purge_old_messages():
+    cutoff = timezone.now() - timedelta(hours=RETENTION_HOURS)
+    Message.objects.filter(sent_at__lt=cutoff).delete()
+
+@agent_required
+def messages_home(request):
+    me = request.agent
+    purge_old_messages()
+    rows = []
+    for other in Agent.objects.filter(is_active=True).exclude(pk=me.pk).order_by("codename"):
+        unread = Message.objects.filter(sender=other, recipient=me, read_at__isnull=True).count()
+        last = Message.objects.filter(
+            Q(sender=me, recipient=other) | Q(sender=other, recipient=me)
+        ).order_by("-sent_at").first()
+        rows.append({"agent": other, "unread": unread, "last": last})
+    rows.sort(key=lambda r: r["last"].sent_at.timestamp() if r["last"] else 0, reverse=True)
+    return render(request, "hq/messages.html", {"rows": rows})
+
+@agent_required
+def thread(request, codename):
+    me = request.agent
+    other = get_object_or_404(Agent, codename__iexact=codename, is_active=True)
+    if other.pk == me.pk:
+        raise Http404()
+    purge_old_messages()
+
+    error = None
+    if request.method == "POST":
+        body = request.POST.get("body", "").strip()
+        priority = "PRIORITY" if request.POST.get("priority") == "PRIORITY" else "ROUTINE"
+        if not body:
+            error = "Message cannot be empty."
+        elif len(body) > MAX_LEN:
+            error = f"Message exceeds {MAX_LEN} characters."
+        elif is_locked(me):
+            error = "Messaging access suspended pending review. Contact your unit administrator."
+        else:
+            reason = check_message(body)
+            if reason:
+                MessageViolation.objects.create(agent=me, recipient=other, text=body, reason=reason)
+                error = "Message blocked: restricted content detected. This attempt has been logged."
+            else:
+                Message.objects.create(sender=me, recipient=other, body=body, priority=priority)
+                return redirect("hq:thread", codename=other.codename)
+
+    Message.objects.filter(sender=other, recipient=me, read_at__isnull=True).update(read_at=timezone.now())
+    convo = Message.objects.filter(
+        Q(sender=me, recipient=other) | Q(sender=other, recipient=me)
+    ).select_related("sender").order_by("sent_at")
+    return render(request, "hq/thread.html", {"me": me, "other": other, "convo": convo, "error": error})

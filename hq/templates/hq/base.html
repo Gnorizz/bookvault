@@ -18,7 +18,14 @@
         <div class="brand-sub">Internal Operations Portal</div>
       </div>
     </div>
-    <div class="header-right">{% block headerright %}{% endblock %}</div>
+    <div class="header-right">
+  {% if nav_agent %}
+    <span class="who">{{ nav_agent.codename }} · {{ nav_agent.service_number }}</span>
+    <a class="navlink" href="{% url 'hq:dashboard' %}">Dashboard</a>
+    <a class="navlink" href="{% url 'hq:messages' %}">Messages{% if unread_count %} <span class="badge level">{{ unread_count }}</span>{% endif %}</a>
+    <a class="btn btn-small" href="{% url 'hq:logout' %}">Sign out</a>
+  {% endif %}
+</div>
   </header>
   <main>{% block content %}{% endblock %}</main>
   <footer class="footer">

@@ -1,10 +1,7 @@
 {% extends "hq/base.html" %}
 {% load static %}
 {% block title %}Dashboard · {{ AGENCY_SHORT }}{% endblock %}
-{% block headerright %}
-  <span class="who">{{ agent.codename }} · {{ agent.service_number }}</span>
-  <a class="btn btn-small" href="{% url 'hq:logout' %}">Sign out</a>
-{% endblock %}
+
 
 {% block content %}
 <div class="dash">

@@ -1,0 +1,30 @@
+{% extends "shop/base.html" %}
+{% block title %}Your cart · Pagebound Books{% endblock %}
+{% block content %}
+<h1 class="page-title">Your cart</h1>
+{% if items %}
+<table class="cart-table">
+  <thead><tr><th>Book</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+  <tbody>
+  {% for row in items %}
+    <tr>
+      <td><a href="{% url 'shop:book' row.book.pk %}">{{ row.book.title }}</a><div class="muted">{{ row.book.author }}</div></td>
+      <td>₦{{ row.book.price|floatformat:"2g" }}</td>
+      <td>
+        <form method="post" action="{% url 'shop:cart_update' row.book.pk %}" class="qty-form">
+          {% csrf_token %}
+          <input type="number" name="quantity" value="{{ row.quantity }}" min="0" max="20">
+          <button type="submit" class="link-btn">Update</button>
+        </form>
+      </td>
+      <td>₦{{ row.subtotal|floatformat:"2g" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class="cart-total">Total: <strong>₦{{ total|floatformat:"2g" }}</strong></div>
+<a class="btn" href="{% url 'shop:checkout' %}">Proceed to checkout</a>
+{% else %}
+<p class="muted">Your cart is empty. <a href="{% url 'shop:home' %}">Browse books</a></p>
+{% endif %}
+{% endblock %}

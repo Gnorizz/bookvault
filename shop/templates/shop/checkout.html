@@ -1,0 +1,29 @@
+{% extends "shop/base.html" %}
+{% block title %}Checkout · Pagebound Books{% endblock %}
+{% block content %}
+<h1 class="page-title">Checkout</h1>
+<div class="checkout">
+  <form method="post" class="panel">
+    {% csrf_token %}
+    <h3>Delivery details</h3>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <label>Full name</label>
+    <input name="name" value="{{ form.name }}" required>
+    <label>Email</label>
+    <input name="email" type="email" value="{{ form.email }}" required>
+    <label>Phone number</label>
+    <input name="phone" value="{{ form.phone }}" required>
+    <label>Delivery address</label>
+    <textarea name="address" rows="3" required>{{ form.address }}</textarea>
+    <button class="btn" type="submit">Pay ₦{{ total|floatformat:"2g" }}</button>
+    <p class="muted small">Payments are processed securely by Paystack. We never see or store your card details.</p>
+  </form>
+  <div class="panel">
+    <h3>Order summary</h3>
+    {% for row in items %}
+      <div class="sum-row"><span>{{ row.book.title }} × {{ row.quantity }}</span><span>₦{{ row.subtotal|floatformat:"2g" }}</span></div>
+    {% endfor %}
+    <div class="sum-row total"><span>Total</span><span>₦{{ total|floatformat:"2g" }}</span></div>
+  </div>
+</div>
+{% endblock %}

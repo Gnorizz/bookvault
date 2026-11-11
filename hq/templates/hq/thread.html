@@ -1,0 +1,35 @@
+{% extends "hq/base.html" %}
+{% block title %}{{ other.codename }} · Messaging{% endblock %}
+{% block content %}
+<div class="card">
+  <h3><a href="{% url 'hq:messages' %}" class="back">← Messages</a> &nbsp;|&nbsp; {{ other.codename }}</h3>
+  <div class="chat">
+    {% for m in convo %}
+    <div class="msg {% if m.sender_id == me.pk %}mine{% else %}theirs{% endif %}">
+      <div class="msg-head">{{ m.sender.codename }} · {{ m.sent_at|date:"d/m/Y H:i" }}
+        {% if m.priority == "PRIORITY" %}<span class="badge p-priority">PRIORITY</span>{% endif %}</div>
+      <div class="msg-body">{{ m.body|linebreaksbr }}</div>
+      {% if m.sender_id == me.pk %}
+        <div class="msg-foot">{% if m.read_at %}Read {{ m.read_at|date:"d/m H:i" }}{% else %}Delivered{% endif %}</div>
+      {% endif %}
+    </div>
+    {% empty %}
+    <p class="muted">No messages yet.</p>
+    {% endfor %}
+  </div>
+
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <form method="post" class="compose">
+    {% csrf_token %}
+    <textarea name="body" rows="3" maxlength="1000" placeholder="Type message (plain text only)" required></textarea>
+    <div class="compose-row">
+      <select name="priority">
+        <option value="ROUTINE">Routine</option>
+        <option value="PRIORITY">Priority</option>
+      </select>
+      <button class="btn btn-small" type="submit">Send</button>
+    </div>
+  </form>
+  <p class="muted small">Monitored channel. Do not include names, locations, contact details or links.</p>
+</div>
+{% endblock %}

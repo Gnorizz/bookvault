@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Pagebound Books{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'shop/css/shop.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href="{% url 'shop:home' %}">Pagebound<span>Books</span></a>
+    <form class="search" method="get" action="{% url 'shop:home' %}">
+      <input type="text" name="q" placeholder="Search by title or author" value="{{ q|default:'' }}" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+    <a class="cart-link" href="{% url 'shop:cart' %}">Cart <span class="pill">{{ cart_count }}</span></a>
+  </div>
+</header>
+<main class="wrap">{% block content %}{% endblock %}</main>
+<footer class="site-footer">© Pagebound Books. All rights reserved.</footer>
+</body>
+</html>

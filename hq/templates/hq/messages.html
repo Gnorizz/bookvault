@@ -1,0 +1,22 @@
+{% extends "hq/base.html" %}
+{% block title %}Secure Messaging · {{ AGENCY_SHORT }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h3>Secure Messaging</h3>
+  <p class="muted small">Internal channel. Code names only. Messages are monitored and expire after 72 hours.</p>
+  {% for row in rows %}
+  <a class="contact" href="{% url 'hq:thread' row.agent.codename %}">
+    <div>
+      <strong>{{ row.agent.codename }}</strong>
+      <div class="muted small">{% if row.last %}{{ row.last.body|truncatechars:60 }}{% else %}No messages{% endif %}</div>
+    </div>
+    <div class="contact-meta">
+      {% if row.last %}<span class="muted small">{{ row.last.sent_at|date:"d/m H:i" }}</span>{% endif %}
+      {% if row.unread %}<span class="badge level">{{ row.unread }} NEW</span>{% endif %}
+    </div>
+  </a>
+  {% empty %}
+  <p class="muted">No contacts available.</p>
+  {% endfor %}
+</div>
+{% endblock %}

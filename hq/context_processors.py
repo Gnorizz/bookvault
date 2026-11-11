@@ -1,7 +1,13 @@
 from django.conf import settings
+from .models import Agent, Message
 
 def agency(request):
-    return {
-        "AGENCY_NAME": settings.AGENCY_NAME,
-        "AGENCY_SHORT": settings.AGENCY_SHORT,
-    }
+    ctx = {"AGENCY_NAME": settings.AGENCY_NAME, "AGENCY_SHORT": settings.AGENCY_SHORT}
+    agent_id = request.session.get("agent_id")
+    if agent_id:
+        agent = Agent.objects.filter(pk=agent_id, is_active=True).first()
+        if agent:
+            ctx["nav_agent"] = agent
+            ctx["unread_count"] = Message.objects.filter(
+                recipient=agent, read_at__isnull=True).count()
+    return ctx

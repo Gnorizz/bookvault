@@ -1,58 +1,18 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pagebound Books</title>
-  <link rel="stylesheet" href="{% static 'shop/css/shop.css' %}">
-</head>
-<body>
-  <header class="site-header">
-    <a href="{% url 'shop:home' %}" class="logo">Page<span>bound</span></a>
-    <form class="search-bar" method="get" action="{% url 'shop:home' %}">
-      <input type="text" name="q" placeholder="Search by title or author" value="{{ q }}" autocomplete="off">
-      <button type="submit">Search</button>
-    </form>
-    <nav class="nav">
-      <a href="{% url 'shop:home' %}">Home</a>
-      <a href="#">Fiction</a>
-      <a href="#">Non-fiction</a>
-      <a href="#">Cart</a>
-    </nav>
-  </header>
-
-  {% if not q %}
-  <section class="hero">
-    <h1>Stories worth staying up for</h1>
-    <p>Novels, memoirs and everything in between, delivered to your door.</p>
-  </section>
-  {% endif %}
-
-  <main>
-    <h2 class="section-title">{% if q %}Search results{% else %}Featured books{% endif %}</h2>
-    {% if q %}<p class="results-note">Showing results for "{{ q }}"</p>{% endif %}
-
-    {% if books %}
-    <div class="grid">
-      {% for book in books %}
-      <article class="book">
-        <div class="cover {% cycle 'c1' 'c2' 'c3' 'c4' 'c5' %}">{{ book.title }}</div>
-        <div class="book-info">
-          <h3 class="book-title">{{ book.title }}</h3>
-          <p class="book-author">{{ book.author }}</p>
-          <span class="book-price">₦{{ book.price }}</span>
-        </div>
-      </article>
-      {% endfor %}
+{% extends "shop/base.html" %}
+{% block content %}
+<h1 class="page-title">{% if q %}Results for “{{ q }}”{% else %}Featured books{% endif %}</h1>
+<div class="grid">
+  {% for book in books %}
+  <a class="card" href="{% url 'shop:book' book.pk %}">
+    {% include "shop/_cover.html" %}
+    <div class="card-body">
+      <div class="b-title">{{ book.title }}</div>
+      <div class="b-author">{{ book.author }}</div>
+      <div class="b-price">₦{{ book.price|floatformat:"2g" }}</div>
     </div>
-    {% else %}
-      <p class="empty">No results found. Try a different title or author.</p>
-    {% endif %}
-  </main>
-
-  <footer class="site-footer">
-    © Pagebound Books. All rights reserved.
-  </footer>
-</body>
-</html>
+  </a>
+  {% empty %}
+  <p class="muted">No results found{% if q %} for “{{ q }}”{% endif %}.</p>
+  {% endfor %}
+</div>
+{% endblock %}

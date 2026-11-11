@@ -1,0 +1,6 @@
+{% load static %}
+{% if book.cover %}
+  <img class="cover" src="{% static 'shop/covers/'|add:book.cover %}" alt="{{ book.title }}">
+{% else %}
+  <div class="cover ph"><span>{{ book.title }}</span></div>
+{% endif %}
