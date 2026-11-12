@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
+import datetime
 
 class Agent(models.Model):
     service_number = models.CharField(max_length=20, unique=True)
@@ -88,3 +89,47 @@ class MessageViolation(models.Model):
     text = models.TextField()
     reason = models.CharField(max_length=20)
     attempted_at = models.DateTimeField(auto_now_add=True)        
+
+class Equipment(models.Model):
+    STATUS = [("ISSUED", "Issued"), ("RETURNED", "Returned"), ("REPORTED", "Reported lost")]
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="equipment")
+    item = models.CharField(max_length=120)
+    category = models.CharField(max_length=60, blank=True)
+    serial_number = models.CharField(max_length=60)
+    issued_on = models.DateField(default=datetime.date.today)
+    status = models.CharField(max_length=10, choices=STATUS, default="ISSUED")
+    notes = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        verbose_name_plural = "equipment"
+
+    def __str__(self):
+        return f"{self.item} ({self.serial_number})"
+
+
+class Training(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="trainings")
+    course = models.CharField(max_length=150)
+    provider = models.CharField(max_length=100, blank=True)
+    completed_on = models.DateField()
+    expires_on = models.DateField(null=True, blank=True, help_text="Leave blank if it doesn't expire")
+    certificate_no = models.CharField(max_length=40, blank=True)
+
+    @property
+    def status(self):
+        if not self.expires_on:
+            return "NO EXPIRY"
+        today = datetime.date.today()
+        if self.expires_on < today:
+            return "EXPIRED"
+        if (self.expires_on - today).days <= 60:
+            return "EXPIRING SOON"
+        return "VALID"
+
+    @property
+    def status_class(self):
+        return {"NO EXPIRY": "none", "EXPIRED": "expired",
+                "EXPIRING SOON": "soon", "VALID": "valid"}[self.status]
+
+    def __str__(self):
+        return self.course

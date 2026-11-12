@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
-from .models import Agent, Case, Memo, AccessLog, Message, BannedTerm, MessageViolation
-
+from .models import (Agent, Case, Memo, AccessLog, Message, BannedTerm,
+                     MessageViolation, Equipment, Training)
 class AgentAdminForm(forms.ModelForm):
     new_password = forms.CharField(
         required=False, widget=forms.PasswordInput,
@@ -51,3 +51,12 @@ class MessageAdmin(admin.ModelAdmin):
 @admin.register(MessageViolation)
 class MessageViolationAdmin(admin.ModelAdmin):
     list_display = ("agent", "recipient", "reason", "attempted_at")
+
+@admin.register(Equipment)
+class EquipmentAdmin(admin.ModelAdmin):
+    list_display = ("item", "serial_number", "agent", "issued_on", "status")
+    list_filter = ("status",)
+
+@admin.register(Training)
+class TrainingAdmin(admin.ModelAdmin):
+    list_display = ("course", "agent", "completed_on", "expires_on", "status")

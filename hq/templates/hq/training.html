@@ -1,0 +1,25 @@
+{% extends "hq/base.html" %}
+{% block title %}Training &amp; Certifications · {{ AGENCY_SHORT }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h3>Training &amp; Certifications</h3>
+  <p class="muted small">Certificates expiring within 60 days are flagged. Contact the Training Directorate to renew.</p>
+  <table>
+    <thead><tr><th>Course</th><th>Provider</th><th>Completed</th><th>Expires</th><th>Certificate No.</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for t in items %}
+      <tr>
+        <td>{{ t.course }}</td>
+        <td>{{ t.provider|default:"—" }}</td>
+        <td>{{ t.completed_on|date:"d/m/Y" }}</td>
+        <td>{% if t.expires_on %}{{ t.expires_on|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+        <td>{{ t.certificate_no|default:"—" }}</td>
+        <td><span class="badge t-{{ t.status_class }}">{{ t.status }}</span></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="muted">No training records.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

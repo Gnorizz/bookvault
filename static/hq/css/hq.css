@@ -142,3 +142,25 @@ td { padding: 10px 6px; border-bottom: 1px solid #edf0ee; vertical-align: top; }
 .compose textarea { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:4px; font-size:15px; font-family:inherit; resize:vertical; }
 .compose-row { display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:10px; }
 .compose select { padding:8px; border:1px solid var(--border); border-radius:4px; }
+
+
+.link-btn { background:none; border:none; color:var(--green); cursor:pointer; font-size:13px; padding:0; text-decoration:underline; }
+.flash { background:#e1f3e8; border:1px solid #b6dfc6; color:#0b5a30; padding:10px 12px; border-radius:4px; font-size:13px; margin:10px 0; }
+.notice { background:#fff8e1; border:1px solid #f0d78a; color:#7a5b00; padding:10px 14px; border-radius:4px; margin-bottom:16px; font-size:14px; }
+.notice a { color:inherit; }
+
+.e-issued { background:#e1f3e8; color:#0b5a30; }
+.e-returned { background:#eceff1; color:#455a64; }
+.e-reported { background:#fde2df; color:#9b1c10; }
+.t-valid { background:#e1f3e8; color:#0b5a30; }
+.t-soon { background:#fff3d6; color:#8a5b00; }
+.t-expired { background:#fde2df; color:#9b1c10; }
+.t-none { background:#eceff1; color:#455a64; }
+
+.timer { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.big-timer { font-size:34px; font-weight:700; color:var(--green-dark); font-variant-numeric:tabular-nums; margin-bottom:6px; }
+[data-session-timer].warn { color:#9b1c10; }
+
+.kv { margin:0; font-size:14px; }
+.kv dt { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-top:12px; }
+.kv dd { margin:2px 0 0; }

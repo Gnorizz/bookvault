@@ -21,8 +21,12 @@
     <div class="header-right">
   {% if nav_agent %}
     <span class="who">{{ nav_agent.codename }} · {{ nav_agent.service_number }}</span>
+    <span class="timer">Session <span data-session-timer></span></span>
     <a class="navlink" href="{% url 'hq:dashboard' %}">Dashboard</a>
     <a class="navlink" href="{% url 'hq:messages' %}">Messages{% if unread_count %} <span class="badge level">{{ unread_count }}</span>{% endif %}</a>
+    <a class="navlink" href="{% url 'hq:equipment' %}">Equipment</a>
+    <a class="navlink" href="{% url 'hq:training' %}">Training</a>
+    <a class="navlink" href="{% url 'hq:profile' %}">Profile</a>
     <a class="btn btn-small" href="{% url 'hq:logout' %}">Sign out</a>
   {% endif %}
 </div>
@@ -31,5 +35,28 @@
   <footer class="footer">
     Unauthorised access is an offence and will be prosecuted. All activity on this system is logged and monitored.
   </footer>
+
+{% if nav_agent %}
+<script>
+(function () {
+  var left = {{ session_seconds }};
+  var els = document.querySelectorAll("[data-session-timer]");
+  function fmt(s) {
+    var m = Math.floor(s / 60), r = s % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function tick() {
+    if (left <= 0) { window.location.href = "{% url 'shop:home' %}"; return; }
+    els.forEach(function (e) {
+      e.textContent = fmt(left);
+      e.classList.toggle("warn", left < 300);
+    });
+    left--;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+{% endif %}
 </body>
 </html>

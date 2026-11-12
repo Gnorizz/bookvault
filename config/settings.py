@@ -163,3 +163,5 @@ if not DEBUG:
 
 
 PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "")
+
+SESSION_SAVE_EVERY_REQUEST = True   # the 1-hour session timer resets on every page load

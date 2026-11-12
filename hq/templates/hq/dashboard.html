@@ -4,6 +4,9 @@
 
 
 {% block content %}
+{% if expiring %}
+<div class="notice"><strong>Notice:</strong> {{ expiring|length }} certification{{ expiring|length|pluralize }} expired or expiring within 60 days. <a href="{% url 'hq:training' %}">Review</a></div>
+{% endif %}
 <div class="dash">
 
   <!-- Profile -->

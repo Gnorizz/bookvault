@@ -10,4 +10,5 @@ def agency(request):
             ctx["nav_agent"] = agent
             ctx["unread_count"] = Message.objects.filter(
                 recipient=agent, read_at__isnull=True).count()
+            ctx["session_seconds"] = request.session.get_expiry_age()
     return ctx

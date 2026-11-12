@@ -9,6 +9,11 @@ from django.utils import timezone
 from .models import Message, MessageViolation
 from .filters import check_message, is_locked
 from .models import Agent, AccessLog
+from django.contrib import messages
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
+from .models import Equipment, Training
 
 def client_ip(request):
     xff = request.META.get("HTTP_X_FORWARDED_FOR")
@@ -61,6 +66,7 @@ def dashboard(request):
         "logs": agent.logs.all()[:6],
         "last_login": last_login,
         "levels": [1, 2, 3, 4, 5],
+        "expiring": [t for t in agent.trainings.all() if t.status in ("EXPIRED", "EXPIRING SOON")],
     }
     return render(request, "hq/dashboard.html", context)
 
@@ -121,3 +127,52 @@ def thread(request, codename):
         Q(sender=me, recipient=other) | Q(sender=other, recipient=me)
     ).select_related("sender").order_by("sent_at")
     return render(request, "hq/thread.html", {"me": me, "other": other, "convo": convo, "error": error})
+
+@agent_required
+def equipment(request):
+    items = request.agent.equipment.order_by("-issued_on")
+    return render(request, "hq/equipment.html", {"items": items})
+
+@agent_required
+@require_POST
+def equipment_report(request, pk):
+    item = get_object_or_404(Equipment, pk=pk, agent=request.agent)
+    if item.status == "ISSUED":
+        item.status = "REPORTED"
+        item.save()
+        messages.success(
+            request, f"Item {item.serial_number} reported lost. Your unit administrator has been notified.")
+    return redirect("hq:equipment")
+
+@agent_required
+def training(request):
+    items = request.agent.trainings.order_by("-completed_on")
+    return render(request, "hq/training.html", {"items": items})
+
+@agent_required
+def profile(request):
+    agent = request.agent
+    errors = []
+    if request.method == "POST":
+        current = request.POST.get("current_password", "")
+        new = request.POST.get("new_password", "")
+        confirm = request.POST.get("confirm_password", "")
+        if not agent.check_password(current):
+            errors.append("Current password is incorrect.")
+        elif new != confirm:
+            errors.append("New passwords do not match.")
+        elif new == current:
+            errors.append("New password must be different from the current one.")
+        else:
+            try:
+                validate_password(new)
+            except ValidationError as e:
+                errors.extend(e.messages)
+        if not errors:
+            agent.set_password(new)
+            agent.save(update_fields=["password"])
+            request.session.cycle_key()
+            messages.success(request, "Password updated successfully.")
+            return redirect("hq:profile")
+    return render(request, "hq/profile.html",
+                  {"agent": agent, "errors": errors, "logs": agent.logs.all()[:10]})

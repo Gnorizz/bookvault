@@ -1,0 +1,57 @@
+{% extends "hq/base.html" %}
+{% block title %}Profile &amp; Security · {{ AGENCY_SHORT }}{% endblock %}
+{% block content %}
+<div class="two-col">
+  <div class="stack">
+    <section class="card">
+      <h3>Account</h3>
+      <dl class="kv">
+        <dt>Full name</dt><dd>{{ agent.full_name }}</dd>
+        <dt>Code name</dt><dd>{{ agent.codename }}</dd>
+        <dt>Service number</dt><dd>{{ agent.service_number }}</dd>
+        <dt>Clearance</dt><dd>Level {{ agent.clearance_level }}</dd>
+        <dt>Unit</dt><dd>{{ agent.unit|default:"—" }}</dd>
+        <dt>Posting</dt><dd>{{ agent.posting|default:"—" }}</dd>
+      </dl>
+    </section>
+    <section class="card">
+      <h3>Session</h3>
+      <div class="big-timer" data-session-timer></div>
+      <p class="muted small">Time remaining before automatic sign-out. The timer resets each time you load a page.</p>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <h3>Change password</h3>
+      {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      {% for e in errors %}<div class="alert">{{ e }}</div>{% endfor %}
+      <form method="post">
+        {% csrf_token %}
+        <label>Current password</label>
+        <input type="password" name="current_password" autocomplete="off" required>
+        <label>New password</label>
+        <input type="password" name="new_password" autocomplete="new-password" required>
+        <label>Confirm new password</label>
+        <input type="password" name="confirm_password" autocomplete="new-password" required>
+        <button class="btn" type="submit">Update password</button>
+      </form>
+    </section>
+    <section class="card">
+      <h3>Recent sign-ins</h3>
+      <table class="small-table">
+        <thead><tr><th>Date / Time</th><th>IP</th><th>Result</th></tr></thead>
+        <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"d/m/Y H:i" }}</td>
+            <td>{{ log.ip_address|default:"—" }}</td>
+            <td>{% if log.success %}<span class="badge ok">Success</span>{% else %}<span class="badge p-urgent">Failed</span>{% endif %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+{% endblock %}
